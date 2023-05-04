@@ -12,7 +12,7 @@ function displayUsers() {
   userList.innerHTML = '';
   users.forEach((user, index) => {
     const li = document.createElement('li');
-    li.innerHTML = `<b>${user.name}</b> (${user.email}) - ${user.phone} <button class="btn btn-danger btn-sm float-right delete" data-index="${index}">X</button>`;
+    li.innerHTML = `<b>${user.name}</b> (${user.email}) - ${user.phone} <button class="btn btn-danger btn-sm float-right delete" data-index="${index}">Delete</button>`;
     userList.appendChild(li);
   });
 }
