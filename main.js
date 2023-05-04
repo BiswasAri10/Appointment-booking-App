@@ -12,7 +12,9 @@ function displayUsers() {
   userList.innerHTML = '';
   users.forEach((user, index) => {
     const li = document.createElement('li');
-    li.innerHTML = `<b>${user.name}</b> (${user.email}) - ${user.phone} <button class="btn btn-danger btn-sm float-right delete" data-index="${index}">Delete</button>`;
+    li.innerHTML = `<b>${user.name}</b> (${user.email}) - ${user.phone} 
+    <button class="btn btn-danger btn-sm float-right delete" data-index="${index}">Delete</button>
+    <button class="btn btn-primary btn-sm float-right edit" data-index="${index}">Edit</button>`;
     userList.appendChild(li);
   });
 }
@@ -53,6 +55,21 @@ userList.addEventListener('click', e => {
     const index = e.target.dataset.index;
     users.splice(index, 1);
     localStorage.setItem('users', JSON.stringify(users));
+    displayUsers();
+  } else if (e.target.classList.contains('edit')) {
+    const index = e.target.dataset.index;
+    const user = users[index];
+
+    // Populate the form fields with the user data
+    document.getElementById('name').value = user.name;
+    document.getElementById('email').value = user.email;
+    document.getElementById('phone').value = user.phone;
+
+    // Remove the existing user data from the local storage
+    users.splice(index, 1);
+    localStorage.setItem('users', JSON.stringify(users));
+
+    // Update the displayed list of users
     displayUsers();
   }
 });
