@@ -19,9 +19,9 @@ function displayUsers() {
   });
 }
 
-// fetch users from clod to show on Page
+// fetch users from cloud to show on Page
 function fetchUsers() {
-    axios.get('https://crudcrud.com/api/9bf6c8641cf44f059970340ce7d3d528/appointmentData')
+    axios.get('https://crudcrud.com/api/86bacebf0b054579a0f580d2b7b2dbdc/appointmentData')
       .then(response => {
         users = response.data;
         displayUsers();
@@ -47,7 +47,7 @@ form.addEventListener('submit', e => {
   };
 
   // Store the users array in cloud storage
-  axios.post('https://crudcrud.com/api/9bf6c8641cf44f059970340ce7d3d528/appointmentData', user)
+  axios.post('https://crudcrud.com/api/86bacebf0b054579a0f580d2b7b2dbdc/appointmentData', user)
     .then(response => {
       console.log('Object stored in the cloud:', response.data);
       users.push(user);
