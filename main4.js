@@ -6,6 +6,7 @@ const userList = document.getElementById('users');
 
 // Initialize users array or retrieve existing one from cloud storage
 let users = [];
+let editedIndex = -1; // Track the index of the edited user
 
 // Display users from local storage
 function displayUsers() {
@@ -21,7 +22,7 @@ function displayUsers() {
 
 // fetch users from cloud to show on Page
 function fetchUsers() {
-    axios.get('https://crudcrud.com/api/86bacebf0b054579a0f580d2b7b2dbdc/appointmentData')
+    axios.get('https://crudcrud.com/api/2416973768e14590baf608943346915d/appointmentData')
         .then(response => {
             users = response.data;
             displayUsers();
@@ -31,11 +32,8 @@ function fetchUsers() {
         });
 }
 
-// Add a submit event listener to the form for adding new appointments
-form.addEventListener('submit', submitForm);
-
-// Function to handle form submission for adding new appointments
-function submitForm(e) {
+// Add a submit event listener to the form
+form.addEventListener('submit', e => {
     e.preventDefault(); // Prevent default form action
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
@@ -48,19 +46,35 @@ function submitForm(e) {
         phone
     };
 
-    // Store the user in the cloud storage
-    axios.post('https://crudcrud.com/api/86bacebf0b054579a0f580d2b7b2dbdc/appointmentData', user)
-        .then(response => {
-            console.log('Object stored in the cloud:', response.data);
-            user._id = response.data._id; // Add the generated _id to the user object
-            users.push(user); // Add the user to the local users array
-            displayUsers(); // Update the displayed list of users
-            form.reset();
-        })
-        .catch(error => {
-            console.error('Error storing object in the cloud:', error);
-        });
-}
+    if (editedIndex === -1) {
+        // Add a new user
+        axios.post('https://crudcrud.com/api/2416973768e14590baf608943346915d/appointmentData', user)
+            .then(response => {
+                console.log('Object stored in the cloud:', response.data);
+                user._id = response.data._id; // Add the generated _id to the user object
+                users.push(user); // Add the user to the local users array
+                displayUsers(); // Update the displayed list of users
+                form.reset();
+            })
+            .catch(error => {
+                console.error('Error storing object in the cloud:', error);
+            });
+    } else {
+        // Edit an existing user
+        const id = users[editedIndex]._id;
+        axios.put(`https://crudcrud.com/api/2416973768e14590baf608943346915d/appointmentData/${id}`, user)
+            .then(response => {
+                console.log('User updated:', response.data);
+                users[editedIndex] = user; // Update the user in the local users array
+                displayUsers(); // Update the displayed list of users
+                form.reset();
+                editedIndex = -1; // Reset the edited index
+            })
+            .catch(error => {
+                console.error('Error updating user:', error);
+            });
+    }
+});
 
 // Add a delete event listener to the users list
 userList.addEventListener('click', e => {
@@ -69,7 +83,7 @@ userList.addEventListener('click', e => {
         const id = e.target.dataset.id;
 
         // Send a DELETE request to the API
-        axios.delete(`https://crudcrud.com/api/86bacebf0b054579a0f580d2b7b2dbdc/appointmentData/${id}`)
+        axios.delete(`https://crudcrud.com/api/2416973768e14590baf608943346915d/appointmentData/${id}`)
             .then(response => {
                 console.log('User deleted:', response.data);
 
@@ -91,52 +105,10 @@ userList.addEventListener('click', e => {
         document.getElementById('email').value = user.email;
         document.getElementById('phone').value = user.phone;
 
-        // Remove the existing user data from the storage
-        users.splice(index, 1);
-
-        // Update the displayed list of users
-        displayUsers();
-
-        // Update the form submit event listener to handle editing
-        form.removeEventListener('submit', submitForm); // Remove the previous event listener
-        form.addEventListener('submit', editForm); // Add a new event listener for editing
+        // Mark the index of the edited user
+        editedIndex = index;
     }
 });
-
-// Function to handle form submission for editing appointments
-function editForm(e) {
-    e.preventDefault(); // Prevent default form action
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
-    const index = users.findIndex(user => user._id === user._id); // Get the index of the edited user
-
-    // Create a new user object
-    const user = {
-        name,
-        email,
-        phone
-    };
-
-    // Store the updated user details in the cloud storage
-    axios.put(`https://crudcrud.com/api/86bacebf0b054579a0f580d2b7b2dbdc/appointmentData/$${users[index]._id}`, user)
-        .then(response => {
-            console.log('Object updated in the cloud:', response.data);
-            users.splice(index, 0, response.data); // Update the local users array with the edited user
-            displayUsers(); // Update the displayed list of users
-            document.getElementById('name').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('phone').value = '';
-            form.reset();
-
-            // Restore the form submit event listener for adding new appointments
-            form.removeEventListener('submit', editForm);
-            form.addEventListener('submit', submitForm);
-        })
-        .catch(error => {
-            console.error('Error updating object in the cloud:', error);
-        });
-}
 
 // Fetch users on page load
 fetchUsers();
